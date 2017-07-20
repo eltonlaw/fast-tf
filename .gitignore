@@ -1,0 +1,8 @@
+__pycache__/
+**/.DS_Store
+*.pyc
+*.swp
+.cache/
+1.py
+MNIST_data/
+logs/
