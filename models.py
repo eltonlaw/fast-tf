@@ -10,11 +10,11 @@ import tensorflow as tf
 def test_experiment(FLAGS):
     """ Test Experiment
 
-    PARAMETERS
+    Parameters
     ----------
     FLAGS: Dictionary of model parameters
 
-    RETURNS
+    Returns
     -------
     TensorFlow MetaGraphDef proto
     """
@@ -23,8 +23,19 @@ def test_experiment(FLAGS):
     x = tf.placeholder(tf.float32, shape=[None, 784])
     y_ = tf.placeholder(tf.float32, shape=[None, 10])
 
-    W = tf.Variable(tf.zeros([784, 10]))
-    b = tf.Variable(tf.zeros([10]))
+
+    # # Initialize variables in parameter servers with greedy strategy
+    # ps = FLAGS.ps_hosts.split(",")
+    # # workers = FLAGS.worker_hosts.split(",")
+    # load_fn = tf.contrib.training.byte_size_load_fn
+    # greedy = tf.contrib.training.GreedyLoadBalancingStrategy(len(ps),
+    #                                                          load_fn)
+    # with tf.device(tf.train.replica_device_setter(ps_tasks=len(ps),
+    #                                               ps_strategy=greedy)):
+    # partitioner kwarg breaks up large variables into smaller ones
+    W = tf.get_variable("weight", shape=[784, 10])
+    #                    partitioner=tf.fixed_size_partitioner(3))
+    b = tf.get_variable("bias", shape=[10])
 
     y = tf.matmul(x, W) + b
 
@@ -41,8 +52,8 @@ def test_experiment(FLAGS):
 
     merged_summary = tf.summary.merge_all()
 
-    tf.add_to_collection('x', x)
-    tf.add_to_collection('y_', y_)
+    tf.add_to_collection('inputs', x)
+    tf.add_to_collection('inputs', y_)
     tf.add_to_collection('train_op', train)
     tf.add_to_collection('score_op', score)
     tf.add_to_collection('summary_op', merged_summary)
@@ -50,6 +61,8 @@ def test_experiment(FLAGS):
 
     # g.finalize()
     meta_graph = tf.train.export_meta_graph(
+        filename=os.path.join(FLAGS.log_dir, "meta_graph_def"),
+        as_text=True,
         collection_list=collection_list
     )
     return meta_graph
