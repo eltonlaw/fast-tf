@@ -11,7 +11,8 @@ mkdir $log_dir
 # touch "$log_dir/results.txt"
 
 # Run Experiments
-python3 model_runner.py --batch_size=64 --log_dir=$log_dir >> $log_dir/results.txt
+python3 model_runner.py --batch_size=64 --epochs=2 --log_dir=$log_dir
+# python3 model_runner.py --batch_size=64 --epochs=2 --log_dir=$log_dir >> $log_dir/results.txt
 # python3 model_runner.py --batch_size=128 --log_dir=$log_dir >> $log_dir/results.txt
 # python3 model_runner.py --batch_size=256 --log_dir=$log_dir >> $log_dir/results.txt
 
