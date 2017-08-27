@@ -1,19 +1,18 @@
 #!/bin/bash
 
+MODEL="test_experiment"
 # Makes a master logs directory if it doesn't already exist
 mkdir -p logs
 # Makes new log directory to place all experiment outputs
-current_date=$(date "+%Y-%m-%d-%H_%M_%S")
-log_dir="logs/$current_date"
-mkdir $log_dir
-
-# Create a file to aggregate all the accuracy results(done with the '>>' below)
-# touch "$log_dir/results.txt"
+CURRENT_DATE=$(date "+%Y-%m-%d-%H_%M_%S")
+LOG_DIR="logs/$CURRENT_DATE"
+mkdir $LOG_DIR
 
 # Run Experiments
-python3 model_runner.py --batch_size=64 --epochs=2 --log_dir=$log_dir
-# python3 model_runner.py --batch_size=64 --epochs=2 --log_dir=$log_dir >> $log_dir/results.txt
-# python3 model_runner.py --batch_size=128 --log_dir=$log_dir >> $log_dir/results.txt
-# python3 model_runner.py --batch_size=256 --log_dir=$log_dir >> $log_dir/results.txt
+python3 model_runner.py \
+    --log_dir="$LOG_DIR" \
+    --model="$MODEL" 
 
+
+echo "Model checkpoints and logs saved to './logs/$CURRENT_DATE'"
 echo "== Job Complete == "

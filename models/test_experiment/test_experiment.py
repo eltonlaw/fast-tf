@@ -1,5 +1,6 @@
 """ Build and export TensorFlow computational graphs """
 import os
+import logging
 # Quiets TensorFlow compile errors
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 # pylint: disable=wrong-import-position
@@ -7,7 +8,7 @@ import tensorflow as tf
 
 
 # pylint: disable=invalid-name
-def test_experiment(FLAGS):
+def model(FLAGS):
     """ Test Experiment
 
     Parameters
@@ -18,13 +19,14 @@ def test_experiment(FLAGS):
     -------
     TensorFlow MetaGraphDef proto
     """
+    logger = logging.getLogger(__name__)
     tf.set_random_seed(FLAGS.seed)
 
     x = tf.placeholder(tf.float32, shape=[None, 784])
-    y_ = tf.placeholder(tf.float32, shape=[None, 10])
+    y = tf.placeholder(tf.float32, shape=[None, 10])
 
 
-    # # Initialize variables in parameter servers with greedy strategy
+    # Initialize variables in parameter servers with greedy strategy
     # ps = FLAGS.ps_hosts.split(",")
     # # workers = FLAGS.worker_hosts.split(",")
     # load_fn = tf.contrib.training.byte_size_load_fn
@@ -37,10 +39,10 @@ def test_experiment(FLAGS):
     #                    partitioner=tf.fixed_size_partitioner(3))
     b = tf.get_variable("bias", shape=[10])
 
-    y = tf.matmul(x, W) + b
+    y_ = tf.matmul(x, W) + b
 
     cost = tf.reduce_mean(
-        tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y))
+        tf.nn.softmax_cross_entropy_with_logits(labels=y, logits=y_))
 
     train = tf.train.GradientDescentOptimizer(FLAGS.lr).minimize(cost)
 
@@ -53,7 +55,7 @@ def test_experiment(FLAGS):
     merged_summary = tf.summary.merge_all()
 
     tf.add_to_collection('inputs', x)
-    tf.add_to_collection('inputs', y_)
+    tf.add_to_collection('inputs', y)
     tf.add_to_collection('train_op', train)
     tf.add_to_collection('score_op', score)
     tf.add_to_collection('summary_op', merged_summary)
@@ -65,4 +67,5 @@ def test_experiment(FLAGS):
         as_text=True,
         collection_list=collection_list
     )
+    logger.debug("`test_experiment` MetaGraph Built")
     return meta_graph
